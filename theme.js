@@ -4,6 +4,17 @@
   var STORAGE_KEY = 'bellums-theme';
   var root = document.documentElement;
 
+  // --- plain-HTTP guard: the site lives behind Cloudflare on yap.bellums.org;
+  // if a visitor arrives over http://, hop to https:// before anything else
+  // loads. Local previews (localhost, loopback, private LAN ranges) are exempt.
+  try {
+    var host = location.hostname;
+    var isLocal = /^(localhost|127\.\d+\.\d+\.\d+|0\.0\.0\.0|\[::1\]|10\.\d+\.\d+\.\d+|192\.168\.\d+\.\d+|172\.(1[6-9]|2\d|3[01])\.\d+\.\d+)$/.test(host) || /\.local$/.test(host);
+    if (location.protocol === 'http:' && host && !isLocal) {
+      location.replace('https://' + location.host + location.pathname + location.search + location.hash);
+    }
+  } catch (e) { /* ignore */ }
+
   // --- early init: apply saved theme before paint ---
   try {
     var saved = localStorage.getItem(STORAGE_KEY);

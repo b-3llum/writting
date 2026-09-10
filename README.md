@@ -1,13 +1,21 @@
 # writting
 
 A small, public notebook for essays, experiments, and unfinished thoughts.
+Published at <https://yap.bellums.org/writting/> and linked from
+<https://bellums.org/writing>.
 
 ## Write a post
 
-1. Add a Markdown file to `posts/`.
+1. Add a Markdown file to `posts/`. Images go in `posts/Attachments/` and are
+   referenced relative to the note, the way an Obsidian vault stores them:
+   `![](Attachments/Pasted%20image%2020260608211427.png)`.
 2. Start it with frontmatter for `title`, `date`, `reading`, and `description`.
+   `date` should be a real date (`September 10, 2026`); notes are sorted by it
+   and grouped by year.
 3. Add the post file to the `posts` array in `app.js`.
-4. Open `index.html` through a local server. Markdown, LaTeX between `$...$` or `$$...$$`, fenced code blocks, and regular Markdown images are supported.
+4. Markdown, LaTeX between `$...$` or `$$...$$`, fenced code blocks, tables,
+   and regular Markdown images are supported. A literal dollar sign in prose
+   is written `\$`.
 
 For a local preview, run:
 
@@ -16,3 +24,18 @@ python3 -m http.server 8000
 ```
 
 Then visit <http://localhost:8000>.
+
+## How it is served
+
+- GitHub Pages builds the `main` branch of this repo and serves it under
+  `yap.bellums.org/writting/` (the `yap.bellums.org` CNAME lives in the
+  `b-3llum.github.io` repo; Cloudflare proxies the domain).
+- `.nojekyll` must stay. Without it GitHub runs Jekyll, which turns every
+  `posts/*.md` with frontmatter into an `.html` page and stops serving the
+  raw `.md` files that `app.js` fetches, so the index shows only the
+  "notes could not be loaded" notice.
+- No third-party script hosts. `vendor/` holds pinned copies of
+  marked 18.0.12, DOMPurify 3.4.15, and MathJax 3.2.2 (bundle, CHTML fonts,
+  and a11y helpers), same rule as bellums.org itself. Licenses sit alongside.
+- `styles.css` and `theme.js` are ported from bellums.org's `static/base.css`
+  and `static/theme.js`; keep them in step when the main site's skin changes.

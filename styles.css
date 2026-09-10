@@ -310,7 +310,8 @@ a.ios-row:hover .chev { color: var(--link); }
 
 /* ---- note body -------------------------------------------------------- */
 
-.markdown-body { margin: 18px 0 0; }
+.markdown-body { margin: 18px 0 0; overflow-wrap: anywhere; }
+.markdown-body :not(pre) > code { overflow-wrap: anywhere; }
 .markdown-body img {
   display: block;
   max-width: 100%;
@@ -335,6 +336,8 @@ a.ios-row:hover .chev { color: var(--link); }
   width: 100%;
   margin: 0 0 18px;
   font-size: 11pt;
+  display: block;        /* wide tables scroll inside the column */
+  overflow-x: auto;
 }
 .markdown-body th {
   text-align: left;

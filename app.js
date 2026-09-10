@@ -36,13 +36,72 @@ function parseFrontmatter(source) {
    paths against the folder the note itself lives in. */
 let assetBase = "";
 
+/* Math. Notes write TeX between $...$ and $$...$$. Two things go wrong if
+   that text reaches Markdown and MathJax untouched: Markdown treats the
+   underscores and asterisks inside formulas as emphasis, and MathJax treats
+   any stray "$" in prose (prices, shell prompts) as the start of a formula.
+   So the tokenizers below lift math out before Markdown sees it and emit it
+   with \(...\) and \[...\] delimiters, which are the only ones MathJax is
+   told to look for. Anything else containing "$" is left alone. */
+const mathBlock = {
+  name: "mathBlock",
+  level: "block",
+  start(src) { return src.match(/^\$\$/m)?.index; },
+  tokenizer(src) {
+    const match = /^\$\$([\s\S]+?)\$\$[ \t]*(?:\n|$)/.exec(src);
+    if (match) return { type: "mathBlock", raw: match[0], text: match[1].trim() };
+  },
+  renderer(token) { return `<p class="math-block">\\[${escapeHtml(token.text)}\\]</p>\n`; }
+};
+
+const mathInline = {
+  name: "mathInline",
+  level: "inline",
+  start(src) { return src.indexOf("$") === -1 ? undefined : src.indexOf("$"); },
+  tokenizer(src) {
+    const display = /^\$\$([\s\S]+?)\$\$/.exec(src);
+    if (display) return { type: "mathInline", raw: display[0], text: display[1].trim(), display: true };
+    const inline = /^\$(?=\S)((?:\\\$|[^$\n])+?)(?<=\S)\$(?![0-9$])/.exec(src);
+    if (inline) return { type: "mathInline", raw: inline[0], text: inline[1], display: false };
+  },
+  renderer(token) {
+    return token.display
+      ? `<span class="math-block">\\[${escapeHtml(token.text)}\\]</span>`
+      : `<span class="math">\\(${escapeHtml(token.text)}\\)</span>`;
+  }
+};
+
 marked.use({
+  extensions: [mathBlock, mathInline],
   walkTokens(token) {
     if (token.type !== "image" || !assetBase) return;
     if (/^(?:[a-z][a-z0-9+.-]*:|\/\/|\/|#)/i.test(token.href)) return;
     token.href = assetBase + token.href;
   }
 });
+
+/* MathJax reads this before its bundle runs (both are deferred, app.js first).
+   Only the delimiters emitted above are recognised; code and pre are skipped
+   by MathJax's defaults, so "$" inside shell snippets is never typeset. */
+window.MathJax = {
+  tex: { inlineMath: [["\\(", "\\)"]], displayMath: [["\\[", "\\]"]] }
+};
+
+/* Three states, depending on how far MathJax has got when a note renders:
+   the bundle has not run yet (its own first pass will pick the note up),
+   it is running its startup (wait for that, then typeset), or it is ready. */
+function typeset(element) {
+  const mathjax = window.MathJax;
+  if (mathjax.typesetPromise) {
+    mathjax.typesetPromise([element]).catch((error) => console.error(error));
+  } else if (mathjax.startup && mathjax.startup.promise) {
+    mathjax.startup.promise.then(() => mathjax.typesetPromise([element])).catch((error) => console.error(error));
+  }
+}
+
+function clearTypeset(element) {
+  if (window.MathJax.typesetClear) MathJax.typesetClear([element]);
+}
 
 function escapeHtml(value) {
   return String(value).replace(/[&<>"']/g, (c) => (
@@ -147,6 +206,7 @@ function showIndex() {
 function renderPost(post) {
   rendered = post;
   assetBase = post.file.replace(/[^/]*$/, "");
+  clearTypeset(postContent);
   const meta = metaLine(post);
   postContent.innerHTML = `
     <div class="page-head">
@@ -159,7 +219,7 @@ function renderPost(post) {
   postContent.querySelectorAll(".markdown-body h2").forEach((heading) => {
     if (!heading.id) heading.id = uniqueId(slugify(heading.textContent));
   });
-  if (window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise([postContent]);
+  typeset(postContent);
 }
 
 function revealPost(post) {
