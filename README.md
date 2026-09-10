@@ -34,8 +34,19 @@ Then visit <http://localhost:8000>.
   `posts/*.md` with frontmatter into an `.html` page and stops serving the
   raw `.md` files that `app.js` fetches, so the index shows only the
   "notes could not be loaded" notice.
-- No third-party script hosts. `vendor/` holds pinned copies of
-  marked 18.0.12, DOMPurify 3.4.15, and MathJax 3.2.2 (bundle, CHTML fonts,
-  and a11y helpers), same rule as bellums.org itself. Licenses sit alongside.
+- Fully self-contained: no third-party requests at all. `vendor/` holds
+  pinned copies of marked 18.0.12, DOMPurify 3.4.15, and MathJax 3.2.2
+  (bundle, CHTML fonts, and a11y helpers). Licenses sit alongside.
+- One typeface, SF Mono, via the `--mono`/`--sans`/`--term` variables in
+  `styles.css`. It resolves to `ui-monospace, "SF Mono", ...` — SF Mono on
+  Apple devices, a monospace fallback elsewhere. There is no web font to
+  load, so the old Google Fonts link is gone.
+- Cache-busting: `styles.css`, `theme.js`, and `app.js` are referenced with
+  a `?v=<stamp>` query in `index.html`. GitHub/Cloudflare cache these first-
+  party files for hours, so **bump the stamp on every deploy that changes
+  them**, or returning visitors keep the stale copy. `index.html` and the
+  `posts/*.md` are short-lived (10 min) and self-heal; `vendor/*` is pinned
+  and stays unversioned. (This is why a note once appeared to be "missing":
+  visitors held an old `app.js` whose `posts` list predated it.)
 - `styles.css` and `theme.js` are ported from bellums.org's `static/base.css`
   and `static/theme.js`; keep them in step when the main site's skin changes.

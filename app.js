@@ -61,8 +61,10 @@ const mathInline = {
   tokenizer(src) {
     const display = /^\$\$([\s\S]+?)\$\$/.exec(src);
     if (display) return { type: "mathInline", raw: display[0], text: display[1].trim(), display: true };
-    const inline = /^\$(?=\S)((?:\\\$|[^$\n])+?)(?<=\S)\$(?![0-9$])/.exec(src);
-    if (inline) return { type: "mathInline", raw: inline[0], text: inline[1], display: false };
+    // No lookbehind: it is a parse-time SyntaxError on Safari/iOS < 16.4,
+    // which would break this whole file. Forbid a trailing space in code instead.
+    const inline = /^\$(?=\S)((?:\\\$|[^$\n])+?)\$(?![0-9$])/.exec(src);
+    if (inline && !/\s$/.test(inline[1])) return { type: "mathInline", raw: inline[0], text: inline[1], display: false };
   },
   renderer(token) {
     return token.display
@@ -264,16 +266,22 @@ function route(loadedPosts) {
 }
 
 async function start() {
-  try {
-    const loadedPosts = await Promise.all(posts.map(loadPost));
-    loadedPosts.sort((a, b) => timestamp(b) - timestamp(a));
-    renderList(loadedPosts);
-    route(loadedPosts);
-    window.addEventListener("hashchange", () => route(loadedPosts));
-  } catch (error) {
+  // allSettled, not all: a single unreachable note should not blank the
+  // entire index. Render every note that loaded; only show the error when
+  // nothing loaded at all.
+  const settled = await Promise.allSettled(posts.map(loadPost));
+  const loadedPosts = settled.filter((s) => s.status === "fulfilled").map((s) => s.value);
+  settled.filter((s) => s.status === "rejected").forEach((s) => console.error(s.reason));
+
+  if (!loadedPosts.length) {
     list.innerHTML = `<div class="notice"><p>The notes could not be loaded. Serve this folder over HTTP, for example <code>python3 -m http.server 8000</code>, then reload.</p></div>`;
-    console.error(error);
+    return;
   }
+
+  loadedPosts.sort((a, b) => timestamp(b) - timestamp(a));
+  renderList(loadedPosts);
+  route(loadedPosts);
+  window.addEventListener("hashchange", () => route(loadedPosts));
 }
 
 start();
