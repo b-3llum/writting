@@ -2,7 +2,8 @@
    grouped by year, and shows a single note when the URL hash matches its slug. */
 
 const posts = [
-  { slug: "a-small-place-to-think", file: "posts/a-small-place-to-think.md" }
+  { slug: "a-small-place-to-think", file: "posts/a-small-place-to-think.md" },
+  { slug: "buffer-overflow", file: "posts/buffer-overflow.md" }
 ];
 
 const indexView = document.querySelector("#index-view");
@@ -29,6 +30,19 @@ function parseFrontmatter(source) {
   });
   return { attributes, body: match[2] };
 }
+
+/* Images are written relative to the note file, the way a vault stores them
+   (Attachments/…), but the page is served from the site root. Resolve those
+   paths against the folder the note itself lives in. */
+let assetBase = "";
+
+marked.use({
+  walkTokens(token) {
+    if (token.type !== "image" || !assetBase) return;
+    if (/^(?:[a-z][a-z0-9+.-]*:|\/\/|\/|#)/i.test(token.href)) return;
+    token.href = assetBase + token.href;
+  }
+});
 
 function escapeHtml(value) {
   return String(value).replace(/[&<>"']/g, (c) => (
@@ -132,6 +146,7 @@ function showIndex() {
 
 function renderPost(post) {
   rendered = post;
+  assetBase = post.file.replace(/[^/]*$/, "");
   const meta = metaLine(post);
   postContent.innerHTML = `
     <div class="page-head">
