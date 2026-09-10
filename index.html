@@ -1,64 +1,86 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content="A personal notebook of ideas, notes, and experiments." />
-    <title>Writting · Notes in progress</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Pontano+Sans:wght@400;700&family=VT323&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="styles.css" />
-    <script defer src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script>
-    <script defer src="app.js"></script>
-  </head>
-  <body>
-    <header class="site-header">
-      <div class="site-nav">
-        <nav aria-label="Primary navigation">
-          <a class="active" href="#writing">Writing</a>
-          <a href="https://github.com/" rel="noreferrer">GitHub</a>
-        </nav>
-      </div>
-      <div class="brand">
-        <a class="wordmark" href="./">writting</a>
-        <span class="tagline">notes from the lab</span>
-      </div>
-    </header>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>writting</title>
+<meta name="description" content="A small, public notebook for essays, experiments, and unfinished thoughts.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=VT323&amp;family=Pontano+Sans:wght@400;700&amp;display=swap">
+<link rel="stylesheet" href="styles.css">
+<script src="theme.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script>
+<script defer src="app.js"></script>
+</head>
+<body>
 
-    <main>
-      <section class="intro" aria-labelledby="page-title">
-        <p class="eyebrow">Writing / index</p>
-        <h1 id="page-title">Thinking out loud,<br /><em>one note at a time.</em></h1>
-        <p class="lede">Essays, experiments, and unfinished thoughts about the things I’m learning.</p>
-      </section>
+<div id="sitename"><a href="./">writting</a></div>
+<div id="siteslogan">notes from the lab</div>
 
-      <section class="writing" id="writing" aria-labelledby="writing-title">
-        <div class="section-heading">
-          <h2 id="writing-title">Latest writing</h2>
-          <span id="post-count" class="post-count"></span>
-        </div>
-        <div id="post-list" class="post-list" aria-live="polite"></div>
-      </section>
+<div id="topmenu">
+  <div id="siteNav">
+    <ul>
+      <li><a class="active" href="./">Notes</a></li>
+      <li><a href="https://bellums.org/">bellums.org</a></li>
+      <li><a href="https://github.com/b-3llum/writting">Source</a></li>
+    </ul>
+  </div>
+</div>
 
-      <article id="post-view" class="post-view" hidden>
-        <a class="back-link" href="#writing">← All writing</a>
-        <div id="post-content"></div>
-      </article>
-    </main>
+<div id="sidemenu">
+  <ul id="page-index">
+    <li><span class="sh">On this page</span></li>
+    <li><a href="#notes">Notes</a></li>
+  </ul>
+  <ul>
+    <li><span class="sh">Elsewhere</span></li>
+    <li><a href="https://bellums.org/">bellums.org</a></li>
+    <li><a href="https://github.com/b-3llum">GitHub</a></li>
+    <li><a href="https://linkedin.com/in/moussa-toure-cyber">LinkedIn</a></li>
+    <li><a href="https://bellums.org/files">File server</a></li>
+    <li><a href="mailto:moussa.toure@bellums.org">Email</a></li>
+  </ul>
+</div>
 
-    <footer class="site-footer">
-      <span>Built in public.</span>
-      <span>Markdown · LaTeX · code · images</span>
-    </footer>
+<main>
 
-    <script>
-      window.MathJax = {
-        tex: { inlineMath: [["$", "$"]], displayMath: [["$$", "$$"]] },
-        options: { skipHtmlTags: ["script", "noscript", "style", "textarea", "pre"] }
-      };
-    </script>
-    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-  </body>
+  <section id="index-view">
+    <div class="page-head">
+      <h1>Thinking out loud, one note at a time.</h1>
+      <p class="lede">Essays, experiments, and unfinished thoughts about the things I&rsquo;m learning.</p>
+    </div>
+
+    <div class="sw-head">
+      <h2 id="notes">Notes</h2>
+      <span id="post-count" class="tag"></span>
+    </div>
+    <div id="post-list" aria-live="polite"></div>
+  </section>
+
+  <article id="post-view" hidden>
+    <div id="post-content"></div>
+    <div class="action-row"><a href="#notes">&larr; All notes</a></div>
+  </article>
+
+</main>
+
+<div class="site-footer">
+  moussa toure &middot; philadelphia &middot;
+  <a href="https://bellums.org/">bellums.org</a> &middot;
+  <a href="https://github.com/b-3llum">github</a> &middot;
+  <a href="https://linkedin.com/in/moussa-toure-cyber">linkedin</a> &middot;
+  <a href="mailto:moussa.toure@bellums.org">moussa.toure@bellums.org</a> &middot;
+  &copy; 2026
+</div>
+
+<script>
+  window.MathJax = {
+    tex: { inlineMath: [["$", "$"]], displayMath: [["$$", "$$"]] },
+    options: { skipHtmlTags: ["script", "noscript", "style", "textarea", "pre"] }
+  };
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</body>
 </html>
